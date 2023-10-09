@@ -1,0 +1,6 @@
+#例 https://api.example.com/geetest
+api: 
+#api对应的token(若参数不为token不填)
+token: 
+#api需要的除(token、gt、challenge)的其他参数；例: apikey=***&referer=**
+query:
