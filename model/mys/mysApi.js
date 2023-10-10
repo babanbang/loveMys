@@ -69,24 +69,8 @@ export default class MysApi {
     return this.isSr == 'sr' ? 'prod_gf_cn' : 'cn_gf01'
   }
 
-  async getData(type, data = {}, cached = false, isGetFP = false) {
-    if (!isGetFP && !this.device_fp) {
-      let seed_id = this.generateSeed(16)
-      let device_fp = await this.getData('getFp', { seed_id }, false, true)
-
-      this.device_fp = device_fp?.data?.device_fp
-    }
-    if (!isGetFP && this.device_fp) {
-      if (data?.headers) {
-        data.headers['x-rpc-device_fp'] = this.device_fp
-      } else {
-        if (!data) data = {}
-        data.headers = {
-          'x-rpc-device_fp': this.device_fp
-        }
-      }
-    }
-
+  async getData(type, data = {}, cached = false) {
+    if (type == 'getFp') data = { seed_id: this.generateSeed(16) }
     let { url, headers, body, types } = this.getUrl(type, data)
 
     if (!url) return false
@@ -150,11 +134,14 @@ export default class MysApi {
     if (!api.api || !(api.token || api.query))
       return { "data": null, "message": `未正确填写配置文件`, "retcode": 1034 }
 
-    let res = await this.getData(type, data)
-    if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
-
+    let res
     try {
-      let headers = { ...data.headers }
+      res = await this.getData(type, data)
+      if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
+
+      let headers = {
+        'x-rpc-device_fp': data?.headers?.['x-rpc-device_fp'] || (await this.getData('getFp')).data?.device_fp
+      }
       if (this.game == 'sr')
         headers['x-rpc-challenge_game'] = '6'
 
@@ -172,12 +159,17 @@ export default class MysApi {
       })
 
       if (res?.data?.challenge) {
+        if (data?.headers) {
+          headers = { ...data.headers, ...headers }
+          delete data.headers
+        }
+
         res = await this.getData(type, {
+          ...data,
           headers: {
             "x-rpc-challenge": res?.data?.challenge,
             ...headers
-          },
-          ...data
+          }
         })
       }
       if (res?.retcode !== 0)
