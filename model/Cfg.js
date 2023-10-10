@@ -18,9 +18,7 @@ class Cfg {
     this.watcher = { config: {}, defSet: {} }
   }
 
-  /**
-   * @param app 配置文件名称
-   */
+  /** 默认配置 */
   getdefSet(app) {
     return this.getYaml(app, 'defSet')
   }
@@ -33,7 +31,7 @@ class Cfg {
   /**
    * 获取配置yaml
    * @param app 配置文件名称
-   * @param type 默认跑配置-defSet，用户配置-config
+   * @param type 默认配置-defSet，用户配置-config
    */
   getYaml(app, type) {
     let file = this.getFilePath(app, type)

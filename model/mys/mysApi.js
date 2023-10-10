@@ -1,7 +1,8 @@
-import md5 from 'md5'
-import fetch from 'node-fetch'
 import cfg from '../../../../lib/config/config.js'
 import apiTool from './apiTool.js'
+import fetch from 'node-fetch'
+import Cfg from '../Cfg.js'
+import md5 from 'md5'
 
 let HttpsProxyAgent = ''
 export default class MysApi {
@@ -75,7 +76,7 @@ export default class MysApi {
 
       this.device_fp = device_fp?.data?.device_fp
     }
-    if (!isGetFP && this.device_fp){
+    if (!isGetFP && this.device_fp) {
       if (data?.headers) {
         data.headers['x-rpc-device_fp'] = this.device_fp
       } else {
@@ -145,6 +146,10 @@ export default class MysApi {
   }
 
   async getvali(type, data = {}) {
+    let api = Cfg.getConfig('api')
+    if (!api.api || !(api.token && api.query))
+      return { "data": null, "message": `未正确填写配置文件`, "retcode": 1034 }
+
     let res = await this.getData(type, data)
     if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
 
