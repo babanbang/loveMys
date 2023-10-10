@@ -147,7 +147,7 @@ export default class MysApi {
 
   async getvali(type, data = {}) {
     let api = Cfg.getConfig('api')
-    if (!api.api || !(api.token && api.query))
+    if (!api.api || !(api.token || api.query))
       return { "data": null, "message": `未正确填写配置文件`, "retcode": 1034 }
 
     let res = await this.getData(type, data)
