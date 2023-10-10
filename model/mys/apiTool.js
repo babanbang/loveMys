@@ -40,7 +40,7 @@ export default class apiTool {
         },
         validate: {
           url: `${this.api.api}`,
-          query: `${this.api.token ? `token=${this.api.token}` : `${this.api.query}`}&gt=${data.gt}&challenge=${data.challenge}`,
+          query: `${this.api.token ? `token=${this.api.token}` : ''}${this.api.query || ''}&gt=${data.gt}&challenge=${data.challenge}`,
           types: 'noheader'
         },
         /** 体力接口fp参数用于避开验证码 */

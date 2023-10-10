@@ -129,31 +129,33 @@ export default class MysApi {
     return res
   }
 
-  async getvali(type, data = {}) {
+  static async getvali(mysapi, type, data = {}) {
+    let vali = new MysApi(mysapi.uid, mysapi.cookie, mysapi.option, mysapi.isSr ? 'sr' : 'gs')
+    
     let api = Cfg.getConfig('api')
     if (!api.api || !(api.token || api.query))
       return { "data": null, "message": `未正确填写配置文件`, "retcode": 1034 }
 
     let res
     try {
-      res = await this.getData(type, data)
+      res = await vali.getData(type, data)
       if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
 
       let headers = {
-        'x-rpc-device_fp': data?.headers?.['x-rpc-device_fp'] || (await this.getData('getFp')).data?.device_fp
+        'x-rpc-device_fp': data?.headers?.['x-rpc-device_fp'] || (await vali.getData('getFp')).data?.device_fp
       }
-      if (this.game == 'sr')
+      if (vali.game == 'sr')
         headers['x-rpc-challenge_game'] = '6'
 
-      res = await this.getData("createVerification", { headers })
+      res = await vali.getData("createVerification", { headers })
       if (!res?.retcode == 0) return { "data": null, "message": "未知错误，可能为cookie失效", "retcode": res?.retcode || 1034 }
 
-      res = await this.getData(`validate`, res?.data)
+      res = await vali.getData(`validate`, res?.data)
 
       if (!res?.data?.validate)
         return { "data": null, "message": `验证码失败`, "retcode": 1034 }
 
-      res = await this.getData("verifyVerification", {
+      res = await vali.getData("verifyVerification", {
         ...res?.data,
         headers
       })
@@ -164,7 +166,7 @@ export default class MysApi {
           delete data.headers
         }
 
-        res = await this.getData(type, {
+        res = await vali.getData(type, {
           ...data,
           headers: {
             "x-rpc-challenge": res?.data?.challenge,
