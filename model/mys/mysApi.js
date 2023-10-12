@@ -12,7 +12,7 @@ export default class MysApi {
    * @param option 其他参数
    * @param option.log 是否显示日志
    */
-  constructor(uid, cookie, option = {}, game = 'gs', device = '') {
+  constructor (uid, cookie, option = {}, game = 'gs', device = '') {
     this.uid = uid
     this.cookie = cookie
     this.isSr = game
@@ -30,12 +30,12 @@ export default class MysApi {
   }
 
   /* eslint-disable quotes */
-  get device() {
+  get device () {
     if (!this._device) this._device = `Yz-${md5(this.uid).substring(0, 5)}`
     return this._device
   }
 
-  getUrl(type, data = {}) {
+  getUrl (type, data = {}) {
     let urlMap = this.apiTool.getUrlMap({ ...data, deviceId: this.device })
     if (!urlMap[type]) return false
 
@@ -49,7 +49,7 @@ export default class MysApi {
     return { url, headers, body, types }
   }
 
-  getServer() {
+  getServer () {
     let uid = this.uid
     switch (String(uid)[0]) {
       case '1':
@@ -69,7 +69,7 @@ export default class MysApi {
     return this.isSr == 'sr' ? 'prod_gf_cn' : 'cn_gf01'
   }
 
-  async getData(type, data = {}, cached = false) {
+  async getData (type, data = {}, cached = false) {
     if (type == 'getFp') data = { seed_id: this.generateSeed(16) }
     let { url, headers, body, types } = this.getUrl(type, data)
 
@@ -129,12 +129,13 @@ export default class MysApi {
     return res
   }
 
-  static async getvali(mysapi, type, data = {}) {
+  static async getvali (mysapi, type, data = {}) {
     let vali = new MysApi(mysapi.uid, mysapi.cookie, mysapi.option, mysapi.isSr ? 'sr' : 'gs')
-    
+
     let api = Cfg.getConfig('api')
-    if (!api.api || !(api.token || api.query))
-      return { "data": null, "message": `未正确填写配置文件`, "retcode": 1034 }
+    if (!api.api || !(api.token || api.query)) {
+      return { data: null, message: `未正确填写配置文件`, retcode: 1034 }
+    }
 
     let res
     try {
@@ -144,19 +145,23 @@ export default class MysApi {
       let headers = {
         'x-rpc-device_fp': data?.headers?.['x-rpc-device_fp'] || (await vali.getData('getFp')).data?.device_fp
       }
-      if (vali.game == 'sr')
-        headers['x-rpc-challenge_game'] = '6'
+      if (vali.game == 'sr') headers['x-rpc-challenge_game'] = '6'
 
       res = await vali.getData("createVerification", { headers })
-      if (!res?.retcode == 0) return { "data": null, "message": "未知错误，可能为cookie失效", "retcode": res?.retcode || 1034 }
+      if (!res?.retcode == 0) {
+        return { data: null, message: "未知错误，可能为cookie失效", retcode: res?.retcode || 1034 }
+      }
+      let gt = res?.data?.gt
+      let challenge = res?.data?.challenge
 
       res = await vali.getData(`validate`, res?.data)
 
-      if (!res?.data?.validate)
-        return { "data": null, "message": `验证码失败`, "retcode": 1034 }
+      if (!res?.data?.validate) return { data: null, message: `验证码失败`, retcode: 1034 }
 
       res = await vali.getData("verifyVerification", {
-        ...res?.data,
+        gt: res?.data?.gt || gt,
+        challenge: res?.data?.challenge || challenge,
+        validate: res?.data?.validate,
         headers
       })
 
@@ -174,17 +179,15 @@ export default class MysApi {
           }
         })
       }
-      if (res?.retcode !== 0)
-        return { "data": null, "message": "", "retcode": 1034 }
-
+      if (res?.retcode !== 0) return { data: null, message: "", retcode: 1034 }
     } catch (error) {
       logger.error(error)
-      return { "data": null, "message": "出错了", "retcode": 1034 }
+      return { data: null, message: "出错了", retcode: 1034 }
     }
     return res
   }
 
-  getHeaders(types, query = '', body = '') {
+  getHeaders (types, query = '', body = '') {
     const cn = {
       app_version: '2.40.1',
       User_Agent: `Mozilla/5.0 (Linux; Android 12; ${this.device}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.40.1`,
@@ -217,13 +220,13 @@ export default class MysApi {
       'x-rpc-app_version': client.app_version,
       'x-rpc-client_type': client.client_type,
       'User-Agent': client.User_Agent,
-      'Referer': client.Referer,
-      'Cookie': this.cookie,
+      Referer: client.Referer,
+      Cookie: this.cookie,
       DS: this.getDs(query, body)
     }
   }
 
-  getDs(q = '', b = '') {
+  getDs (q = '', b = '') {
     let n = ''
     if (['cn_gf01', 'cn_qd01', 'prod_gf_cn', 'prod_qd_cn'].includes(this.server)) {
       n = 'xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs'
@@ -236,24 +239,24 @@ export default class MysApi {
     return `${t},${r},${DS}`
   }
 
-  getGuid() {
-    function S4() {
+  getGuid () {
+    function S4 () {
       return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
     }
 
     return (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4())
   }
 
-  cacheKey(type, data) {
+  cacheKey (type, data) {
     return 'Yz:genshin:mys:cache:' + md5(this.uid + type + JSON.stringify(data))
   }
 
-  async cache(res, cacheKey) {
+  async cache (res, cacheKey) {
     if (!res || res.retcode !== 0) return
     redis.setEx(cacheKey, this.cacheCd, JSON.stringify(res))
   }
 
-  async getAgent() {
+  async getAgent () {
     let proxyAddress = cfg.bot.proxyAddress
     if (!proxyAddress) return null
     if (proxyAddress === 'http://0.0.0.0:0') return null
@@ -275,7 +278,7 @@ export default class MysApi {
     return null
   }
 
-  generateSeed(length = 16) {
+  generateSeed (length = 16) {
     const characters = '0123456789abcdef'
     let result = ''
     for (let i = 0; i < length; i++) {
@@ -284,4 +287,3 @@ export default class MysApi {
     return result
   }
 }
-

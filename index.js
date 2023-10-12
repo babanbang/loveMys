@@ -1,18 +1,10 @@
 import Cfg from './model/Cfg.js'
 import fs from 'node:fs'
 
-if (!fs.existsSync(Cfg.configPath))
-  fs.mkdirSync(Cfg.configPath)
-
-let yamlfiles = fs.readdirSync(`${Cfg.defSetPath}`).filter(file => file.endsWith('.yaml'))
-for (let item of yamlfiles)
-  if (!fs.existsSync(`${Cfg.configPath}/${item}`))
-    fs.copyFileSync(`${Cfg.defSetPath}/${item}`, `${Cfg.configPath}/${item}`)
-
+Cfg.copyPath()
 const files = fs.readdirSync('./plugins/loveMys-plugin/apps').filter(file => file.endsWith('.js'))
 
 let ret = []
-
 files.forEach((file) => {
   ret.push(import(`./apps/${file}`))
 })

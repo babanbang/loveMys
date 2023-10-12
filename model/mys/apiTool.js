@@ -7,13 +7,12 @@ export default class apiTool {
    * @param {区服} server
    * @param {游戏} game
    */
-  constructor(uid, server, game = 'gs') {
+  constructor (uid, server, game = 'gs') {
     this.uid = uid
     this.server = server
     this.game = game
     this.api = Cfg.getConfig('api')
   }
-
 
   getUrlMap = (data = {}) => {
     let host, hostRecord
@@ -33,9 +32,9 @@ export default class apiTool {
         verifyVerification: {
           url: `${hostRecord}game_record/app/card/wapi/verifyVerification`,
           body: {
-            "geetest_challenge": data.challenge,
-            "geetest_validate": data.validate,
-            "geetest_seccode": `${data.validate}|jordan`
+            geetest_challenge: data.challenge,
+            geetest_validate: data.validate,
+            geetest_seccode: `${data.validate}|jordan`
           }
         },
         validate: {
@@ -45,7 +44,7 @@ export default class apiTool {
         },
         /** 体力接口fp参数用于避开验证码 */
         getFp: {
-          url: `https://public-data-api.mihoyo.com/device-fp/api/getFp`,
+          url: 'https://public-data-api.mihoyo.com/device-fp/api/getFp',
           body: {
             seed_id: data.seed_id,
             device_id: data.deviceId,
@@ -54,7 +53,7 @@ export default class apiTool {
             ext_fields: '{"proxyStatus":"0","accelerometer":"-0.159515x-0.830887x-0.682495","ramCapacity":"3746","IDFV":"8F4E403B-4C28-4F7F-B740-2DD317948B8A","gyroscope":"-0.191951x-0.112927x0.632637","isJailBreak":"0","model":"iPhone12,5","ramRemain":"115","chargeStatus":"1","networkType":"WIFI","vendor":"--","osVersion":"17.0.2","batteryStatus":"50","screenSize":"414×896","cpuCores":"6","appMemory":"55","romCapacity":"488153","romRemain":"157348","cpuType":"CPU_TYPE_ARM64","magnetometer":"-84.426331x-89.708435x-37.117889"}',
             app_name: 'bbs_cn',
             device_fp: '38d7ee834d1e9'
-          },
+          }
         }
       },
       gs: {
@@ -112,7 +111,7 @@ export default class apiTool {
           url: `${hostRecord}game_record/app/genshin/api/gcg/basicInfo`,
           query: `role_id=${this.uid}&server=${this.server}`
         },
-        /**七圣牌组 */
+        /** 七圣牌组 */
         deckList: {
           url: `${hostRecord}game_record/app/genshin/api/gcg/deckList`,
           query: `role_id=${this.uid}&server=${this.server}`
@@ -127,11 +126,11 @@ export default class apiTool {
           url: `${hostRecord}game_record/app/genshin/api/gcg/cardList`,
           query: `limit=999&need_action=true&need_avatar=false&need_stats=true&offset=0&role_id=${this.uid}&server=${this.server}`
         },
-        /**使用兑换码 目前仅限国际服,来自于国服的uid请求已在myinfo.js的init方法提前拦截 */
+        /** 使用兑换码 目前仅限国际服,来自于国服的uid请求已在myinfo.js的init方法提前拦截 */
         useCdk: {
           url: 'PLACE_HOLDER',
           query: null
-        },
+        }
       },
       sr: {
         /** 首页宝箱 */
@@ -145,7 +144,7 @@ export default class apiTool {
         },
         UserGame: {
           url: `${host}binding/api/getUserGameRolesByCookie`,
-          query: `game_biz=hkrpg_cn`
+          query: 'game_biz=hkrpg_cn'
         },
         /** 深渊 （混沌回忆） */
         spiralAbyss: {
@@ -174,7 +173,7 @@ export default class apiTool {
         /** 养成计算器 */
         compute: {
           url: `${host}event/rpgcalc/compute?`,
-          query: `game=hkrpg`,
+          query: 'game=hkrpg',
           body: data.body
         },
         /** 详情 */

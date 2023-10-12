@@ -1,11 +1,10 @@
 import chokidar from 'chokidar'
 import YAML from 'yaml'
 import fs from 'node:fs'
-import _ from 'lodash'
 
 /** 配置文件 */
 class Cfg {
-  constructor() {
+  constructor () {
     /** 默认设置 */
     this.defSetPath = './plugins/loveMys-plugin/defSet'
     this.defSet = {}
@@ -19,12 +18,12 @@ class Cfg {
   }
 
   /** 默认配置 */
-  getdefSet(app) {
+  getdefSet (app) {
     return this.getYaml(app, 'defSet')
   }
 
   /** 用户配置 */
-  getConfig(app) {
+  getConfig (app) {
     return { ...this.getdefSet(app), ...this.getYaml(app, 'config') }
   }
 
@@ -33,7 +32,7 @@ class Cfg {
    * @param app 配置文件名称
    * @param type 默认配置-defSet，用户配置-config
    */
-  getYaml(app, type) {
+  getYaml (app, type) {
     let file = this.getFilePath(app, type)
 
     if (this[type][app]) return this[type][app]
@@ -52,13 +51,13 @@ class Cfg {
     return this[type][app]
   }
 
-  getFilePath(app, type) {
+  getFilePath (app, type) {
     if (type == 'defSet') return `${this.defSetPath}/${app}.yaml`
     else return `${this.configPath}/${app}.yaml`
   }
 
   /** 监听配置文件 */
-  watch(file, app, type = 'defSet') {
+  watch (file, app, type = 'defSet') {
     if (this.watcher[type][app]) return
 
     const watcher = chokidar.watch(file)
@@ -73,6 +72,16 @@ class Cfg {
     this.watcher[type][app] = watcher
   }
 
+  copyPath () {
+    if (!fs.existsSync(this.configPath)) fs.mkdirSync(this.configPath)
+
+    let yamlfiles = fs.readdirSync(`${this.defSetPath}`).filter(file => file.endsWith('.yaml'))
+    for (let item of yamlfiles) {
+      if (!fs.existsSync(`${this.configPath}/${item}`)) {
+        fs.copyFileSync(`${this.defSetPath}/${item}`, `${this.configPath}/${item}`)
+      }
+    }
+  }
 }
 
 export default new Cfg()
