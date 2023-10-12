@@ -3,9 +3,9 @@ import Cfg from '../Cfg.js'
 export default class apiTool {
   /**
    *
-   * @param {用户uid} uid
-   * @param {区服} server
-   * @param {游戏} game
+   * @param uid 用户uid
+   * @param server 区服
+   * @param game 游戏
    */
   constructor (uid, server, game = 'gs') {
     this.uid = uid

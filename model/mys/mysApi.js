@@ -1,7 +1,6 @@
 import cfg from '../../../../lib/config/config.js'
 import apiTool from './apiTool.js'
 import fetch from 'node-fetch'
-import Cfg from '../Cfg.js'
 import md5 from 'md5'
 
 let HttpsProxyAgent = ''
@@ -11,6 +10,8 @@ export default class MysApi {
    * @param cookie 米游社cookie
    * @param option 其他参数
    * @param option.log 是否显示日志
+   * @param game 游戏
+   * @param device 设备device_id
    */
   constructor (uid, cookie, option = {}, game = 'gs', device = '') {
     this.uid = uid
@@ -129,64 +130,6 @@ export default class MysApi {
     return res
   }
 
-  static async getvali (mysapi, type, data = {}) {
-    let vali = new MysApi(mysapi.uid, mysapi.cookie, mysapi.option, mysapi.isSr ? 'sr' : 'gs')
-
-    let api = Cfg.getConfig('api')
-    if (!api.api || !(api.token || api.query)) {
-      return { data: null, message: `未正确填写配置文件`, retcode: 1034 }
-    }
-
-    let res
-    try {
-      res = await vali.getData(type, data)
-      if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
-
-      let headers = {
-        'x-rpc-device_fp': data?.headers?.['x-rpc-device_fp'] || (await vali.getData('getFp')).data?.device_fp
-      }
-      if (vali.game == 'sr') headers['x-rpc-challenge_game'] = '6'
-
-      res = await vali.getData("createVerification", { headers })
-      if (!res?.retcode == 0) {
-        return { data: null, message: "未知错误，可能为cookie失效", retcode: res?.retcode || 1034 }
-      }
-      let gt = res?.data?.gt
-      let challenge = res?.data?.challenge
-
-      res = await vali.getData(`validate`, res?.data)
-
-      if (!res?.data?.validate) return { data: null, message: `验证码失败`, retcode: 1034 }
-
-      res = await vali.getData("verifyVerification", {
-        gt: res?.data?.gt || gt,
-        challenge: res?.data?.challenge || challenge,
-        validate: res?.data?.validate,
-        headers
-      })
-
-      if (res?.data?.challenge) {
-        if (data?.headers) {
-          headers = { ...data.headers, ...headers }
-          delete data.headers
-        }
-
-        res = await vali.getData(type, {
-          ...data,
-          headers: {
-            "x-rpc-challenge": res?.data?.challenge,
-            ...headers
-          }
-        })
-      }
-      if (res?.retcode !== 0) return { data: null, message: "", retcode: 1034 }
-    } catch (error) {
-      logger.error(error)
-      return { data: null, message: "出错了", retcode: 1034 }
-    }
-    return res
-  }
-
   getHeaders (types, query = '', body = '') {
     const cn = {
       app_version: '2.40.1',
@@ -237,14 +180,6 @@ export default class MysApi {
     let r = Math.floor(Math.random() * 900000 + 100000)
     let DS = md5(`salt=${n}&t=${t}&r=${r}&b=${b}&q=${q}`)
     return `${t},${r},${DS}`
-  }
-
-  getGuid () {
-    function S4 () {
-      return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
-    }
-
-    return (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4())
   }
 
   cacheKey (type, data) {
