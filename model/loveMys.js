@@ -20,7 +20,7 @@ export default class LoveMys {
         devicefp: data?.headers?.['x-rpc-device_fp'] || ''
       }
 
-      res = await this.geetest(mysapi.uid, mysapi.cookie, option, mysapi.isSr ? 'sr' : 'gs')
+      res = await this.geetest(mysapi.uid, mysapi.cookie, mysapi.isSr ? 'sr' : 'gs', option, mysapi.device)
       if (!res || res?.retcode !== 0 || !res?.data?.challenge) {
         return { data: null, message: '验证码失败', retcode: 1034 }
       }
@@ -42,9 +42,9 @@ export default class LoveMys {
     return res
   }
 
-  async geetest (uid, cookie, option = {}, game = 'gs', device = '') {
+  async geetest (uid, cookie, game = 'gs', option = {}, device = '') {
     let res
-    let vali = new MysApi(uid, cookie, option, game, device)
+    let vali = new MysApi(uid, cookie, game, option, device)
 
     try {
       let devicefp = option.devicefp || (await vali.getData('getFp')).data?.device_fp

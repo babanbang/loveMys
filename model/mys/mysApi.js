@@ -13,17 +13,16 @@ export default class MysApi {
    * @param game 游戏
    * @param device 设备device_id
    */
-  constructor (uid, cookie, option = {}, game = 'gs', device = '') {
+  constructor (uid, cookie, game = 'gs', option = {}, device = '') {
     this.uid = uid
     this.cookie = cookie
-    this.isSr = game
+    this.game = game
     this.server = this.getServer()
-    this.apiTool = new apiTool(uid, this.server, game)
+    this.apiTool = new apiTool(this.server)
     /** 5分钟缓存 */
     this.cacheCd = 300
 
-    this._device = device
-    this.device_fp = false
+    this.device_id = device || this.getGuid()
     this.option = {
       log: true,
       ...option
@@ -37,7 +36,7 @@ export default class MysApi {
   }
 
   getUrl (type, data = {}) {
-    let urlMap = this.apiTool.getUrlMap({ ...data, deviceId: this.device })
+    let urlMap = this.apiTool.getUrlMap({ ...data, deviceId: this.device_id })
     if (!urlMap[type]) return false
 
     let { url, query = '', body = '', types = '' } = urlMap[type]
@@ -55,23 +54,23 @@ export default class MysApi {
     switch (String(uid)[0]) {
       case '1':
       case '2':
-        return this.isSr == 'sr' ? 'prod_gf_cn' : 'cn_gf01' // 官服
+        return this.game == 'sr' ? 'prod_gf_cn' : 'cn_gf01' // 官服
       case '5':
-        return this.isSr == 'sr' ? 'prod_qd_cn' : 'cn_qd01' // B服
+        return this.game == 'sr' ? 'prod_qd_cn' : 'cn_qd01' // B服
       case '6':
-        return this.isSr == 'sr' ? 'prod_official_usa' : 'os_usa' // 美服
+        return this.game == 'sr' ? 'prod_official_usa' : 'os_usa' // 美服
       case '7':
-        return this.isSr == 'sr' ? 'prod_official_euro' : 'os_euro' // 欧服
+        return this.game == 'sr' ? 'prod_official_euro' : 'os_euro' // 欧服
       case '8':
-        return this.isSr == 'sr' ? 'prod_official_asia' : 'os_asia' // 亚服
+        return this.game == 'sr' ? 'prod_official_asia' : 'os_asia' // 亚服
       case '9':
-        return this.isSr == 'sr' ? 'prod_official_cht' : 'os_cht' // 港澳台服
+        return this.game == 'sr' ? 'prod_official_cht' : 'os_cht' // 港澳台服
     }
-    return this.isSr == 'sr' ? 'prod_gf_cn' : 'cn_gf01'
+    return this.game == 'sr' ? 'prod_gf_cn' : 'cn_gf01'
   }
 
   async getData (type, data = {}, cached = false) {
-    if (type == 'getFp') data = { seed_id: this.generateSeed(16) }
+    if (type == 'getFp') data = { seed_id: this.getSeed_id(16) }
     let { url, headers, body, types } = this.getUrl(type, data)
 
     if (!url) return false
@@ -182,6 +181,23 @@ export default class MysApi {
     return `${t},${r},${DS}`
   }
 
+  getGuid () {
+    function S4 () {
+      return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+    }
+
+    return (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4())
+  }
+
+  getSeed_id (length = 16) {
+    const characters = '0123456789abcdef'
+    let result = ''
+    for (let i = 0; i < length; i++) {
+      result += characters[Math.floor(Math.random() * characters.length)]
+    }
+    return result
+  }
+
   cacheKey (type, data) {
     return 'Yz:genshin:mys:cache:' + md5(this.uid + type + JSON.stringify(data))
   }
@@ -211,14 +227,5 @@ export default class MysApi {
     }
 
     return null
-  }
-
-  generateSeed (length = 16) {
-    const characters = '0123456789abcdef'
-    let result = ''
-    for (let i = 0; i < length; i++) {
-      result += characters[Math.floor(Math.random() * characters.length)]
-    }
-    return result
   }
 }
