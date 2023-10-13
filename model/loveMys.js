@@ -10,10 +10,8 @@ export default class LoveMys {
 
     let res
     try {
-      if (gtest) {
-        res = await mysapi.getData(type, data)
-        if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
-      }
+      res = await mysapi.getData(type, data)
+      if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
 
       let option = {
         ...mysapi.option,
