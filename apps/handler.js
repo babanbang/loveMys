@@ -32,6 +32,6 @@ export class update extends plugin {
     }
 
     // 调用过码
-    return await loveMys.getvali(mysApi, type, data, gtest)
+    return await loveMys.getvali(mysApi, type, data)
   }
 }
