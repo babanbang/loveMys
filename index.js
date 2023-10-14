@@ -1,7 +1,10 @@
+import LoveMys from './model/loveMys.js'
 import Cfg from './model/Cfg.js'
 import fs from 'node:fs'
 
 Cfg.copyPath()
+// 暂时仍保留全局的Gtest以兼容老版本调用，待Handler普及后删除
+global.Gtest = new LoveMys()
 const files = fs.readdirSync('./plugins/loveMys-plugin/apps').filter(file => file.endsWith('.js'))
 
 let ret = []
