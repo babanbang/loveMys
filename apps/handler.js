@@ -17,8 +17,11 @@ export class loveMysHandler extends plugin {
     })
   }
 
-  // 接受的参数
-  async mysReqErrHandler (e, args, reject, OnlyGtest = false) {
+  /**
+   * @param {{uid, cookie, game, option?: {log?, devicefp?}, device?}} args.mysApi
+   * @param args.OnlyGtest 是否仅调用过码
+   */
+  async mysReqErrHandler (e, args, reject) {
     let { mysApi, res } = args
     if (res.retcode !== 1034) {
       // 暂时只处理1034情况
@@ -31,7 +34,7 @@ export class loveMysHandler extends plugin {
     }
 
     // 仅调用过码(供其他插件使用)
-    if (OnlyGtest) {
+    if (args.OnlyGtest) {
       let { uid, cookie, game } = mysApi
       return loveMys.geetest(uid, cookie, game, mysApi.option || {}, mysApi.device || '')
     }
