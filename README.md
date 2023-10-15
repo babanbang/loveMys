@@ -17,5 +17,5 @@ git clone https://github.com/babanbang/loveMys.git ./plugins/loveMys-plugin/
 > 注：如何填写请自行查看所选择的api的接口文档 (当前仅支持GET)
 
 ## 后续计划
-先刨坑，但也许会咕咕咕
+* 添加手动方案
 

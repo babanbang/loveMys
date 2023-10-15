@@ -19,7 +19,7 @@ export default class LoveMys {
       }
 
       res = await this.geetest(mysapi.uid, mysapi.cookie, mysapi.isSr ? 'sr' : 'gs', option, mysapi.device)
-      if (!res || res?.retcode !== 0 || !res?.data?.challenge) {
+      if (!res?.data?.challenge) {
         return { data: null, message: '验证码失败', retcode: 1034 }
       }
 
@@ -31,7 +31,7 @@ export default class LoveMys {
       res = await mysapi.getData(type, data)
 
       if (!(res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002))) {
-        return { data: null, message: '', retcode: 1034 }
+        return { data: null, message: '验证码失败', retcode: 1034 }
       }
     } catch (error) {
       logger.error(error)
@@ -40,6 +40,11 @@ export default class LoveMys {
     return res
   }
 
+  /**
+   * @param option 其他参数
+   * @param option.log 是否显示过码日志
+   * @param option.devicefp device_fp
+   */
   async geetest (uid, cookie, game = 'gs', option = {}, device = '') {
     let res
     let vali = new MysApi(uid, cookie, game, option, device)

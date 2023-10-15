@@ -1,10 +1,10 @@
 import plugin from '../../../lib/plugins/plugin.js'
-import Cfg from '../model/Cfg.js'
 import LoveMys from '../model/loveMys.js'
+import Cfg from '../model/Cfg.js'
 
 let loveMys = new LoveMys()
 
-export class update extends plugin {
+export class loveMysHandler extends plugin {
   constructor () {
     super({
       name: 'mys请求错误处理',
@@ -15,12 +15,11 @@ export class update extends plugin {
         fn: 'mysReqErrHandler'
       }]
     })
-    this.typeName = 'loveMys-plugin'
   }
 
   // 接受的参数
-  async mysReqErrHandler (e, args, reject) {
-    let { mysApi, type, data, res } = args
+  async mysReqErrHandler (e, args, reject, OnlyGtest = false) {
+    let { mysApi, res } = args
     if (res.retcode !== 1034) {
       // 暂时只处理1034情况
       return reject()
@@ -31,7 +30,12 @@ export class update extends plugin {
       return reject('loveMys: 未正确填写配置文件')
     }
 
-    // 调用过码
-    return await loveMys.getvali(mysApi, type, data)
+    // 仅调用过码(供其他插件使用)
+    if (OnlyGtest) {
+      let { uid, cookie, game } = mysApi
+      return loveMys.geetest(uid, cookie, game, mysApi.option || {}, mysApi.device || '')
+    }
+    // 本体过码
+    return await loveMys.getvali(mysApi, args.type, args.data)
   }
 }
