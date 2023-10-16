@@ -1,3 +1,4 @@
+import GT_Manual from './GT-Manual/GT-Manual.js'
 import chokidar from 'chokidar'
 import YAML from 'yaml'
 import fs from 'node:fs'
@@ -81,6 +82,11 @@ class Cfg {
         fs.copyFileSync(`${this.defSetPath}/${item}`, `${this.configPath}/${item}`)
       }
     }
+  }
+
+  startGT () {
+    let gtConfig = this.getConfig('gt_manual')
+    if (gtConfig.startApi && gtConfig.Host && gtConfig.Port) (new GT_Manual()).load()
   }
 }
 

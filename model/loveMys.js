@@ -2,7 +2,7 @@ import MysApi from './mys/mysApi.js'
 import Cfg from './Cfg.js'
 
 export default class LoveMys {
-  async getvali (mysapi, type, data = {}, gtest = false) {
+  async getvali (mysapi, type, data = {}) {
     let api = Cfg.getConfig('api')
     if (!api.api || !(api.token || api.query)) {
       return { data: null, message: '未正确填写配置文件', retcode: 1034 }
@@ -79,5 +79,34 @@ export default class LoveMys {
       logger.error(error)
     }
     return { data: null, message: '验证码失败', retcode: 1034 }
+  }
+
+  /**
+   * @param {{gt, challenge}} data
+   */
+  async Manual_geetest (e, data) {
+    if (!data.gt || !data.challenge || !e?.reply) return false
+
+    let res = await fetch(`${Cfg.getConfig('gt_manual').verifyAddr}`, {
+      method: 'post',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    if (!res.ok) {
+      logger.error(`[loveMys][GT-Manual] ${res.status} ${res.statusText}`)
+      return false
+    }
+    res = await res.json()
+    if (!res.data) return false
+
+    await e.reply(`请打开地址并完成验证\n${res.data.link}`, true)
+
+    for (let i = 0; i < 80; i++) {
+      let validate = await (await fetch(res.data.result)).json()
+      if (validate?.data) return validate.data
+
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+    }
+    return false
   }
 }
