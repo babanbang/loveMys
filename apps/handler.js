@@ -38,6 +38,6 @@ export class loveMysHandler extends plugin {
     }
 
     // 本体过码
-    return await loveMys.getvali(mysApi, args.type, args.data)
+    return await loveMys.getvali(e, mysApi, args.type, args.data)
   }
 }
