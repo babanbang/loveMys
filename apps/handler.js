@@ -25,10 +25,7 @@ export class loveMysHandler extends plugin {
     let { mysApi, res } = args
 
     // 仅调用过码(供其他插件使用)
-    if (args.OnlyGtest) {
-      let { uid, cookie, game } = mysApi
-      return loveMys.geetest(uid, cookie, game, mysApi.option || {}, mysApi.device || '')
-    }
+    if (args.OnlyGtest) return loveMys.geetest(e, mysApi)
 
     if (res.retcode !== 1034) {
       // 暂时只处理1034情况
@@ -36,8 +33,8 @@ export class loveMysHandler extends plugin {
     }
 
     let apiCfg = Cfg.getConfig('api')
-    if (!apiCfg.api || !(apiCfg.token || apiCfg.query)) {
-      return reject('loveMys: 未正确填写配置文件')
+    if ([1, 2].includes(apiCfg.GtestType) && (!apiCfg.api || !(apiCfg.token || apiCfg.query))) {
+      return reject('loveMys: 未正确填写配置文件[api.yaml]')
     }
 
     // 本体过码

@@ -4,3 +4,15 @@ api:
 token: 
 #api需要的除(token、gt、challenge)的其他参数；例: apikey=***&referer=**
 query:
+
+# 使用他人的手动api或者不想使用手动请关闭
+startApi: false
+# 你的手动域名或ip
+Host: http://127.0.0.1
+# 你的手动端口
+Port: 3000
+# 使用他人的手动api请修改
+verifyAddr: http://127.0.0.1:3000/GTest/register
+
+# 0:仅手动；1:仅自动；2:自动失败换手动
+GtestType: 2

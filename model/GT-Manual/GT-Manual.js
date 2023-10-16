@@ -8,13 +8,12 @@ let result = {}
 const Path = `${process.cwd()}/plugins/loveMys-plugin/model/GT-Manual/`
 export default class GT_Manual {
   constructor () {
-    this.Host = Cfg.getConfig('gt_manual').Host
-    this.Port = Cfg.getConfig('gt_manual').Port
+    this.cfg = Cfg.getConfig('api')
     this.app = express()
   }
 
   load () {
-    this.app.listen(this.Port)
+    this.app.listen(this.cfg.Port)
     this.app.use(express.static(process.cwd()))
     this.app.use(express.urlencoded({ extended: false }))
     this.app.use(express.json())
@@ -25,7 +24,7 @@ export default class GT_Manual {
     this.app.get('/GTest/validate/:key', this.get_validate)
     this.app.use(this.invalid)
     this.app.use(this.error)
-    logger.mark(`[loveMys]手动接口启动, ${this.Host}:${this.Port}/GTest/register`)
+    logger.mark(`[loveMys]手动接口启动, ${this.cfg.Host}:${this.cfg.Port}/GTest/register`)
   }
 
   index (req, res, next) {
@@ -71,8 +70,8 @@ export default class GT_Manual {
     /** 未点击2分钟后删除 */
     setTimeout(() => delete tmp[key] && delete isRegister[key], 120000)
     GT_Manual.send(res, {
-      link: `http://${this.Host}:${this.Port}/GTest/${key}`,
-      result: `http://${this.Host}:${this.Port}/GTest/validate/${key}`
+      link: `${this.cfg.Host}:${this.cfg.Port}/GTest/${key}`,
+      result: `${this.cfg.Host}:${this.cfg.Port}/GTest/validate/${key}`
     })
   }
 

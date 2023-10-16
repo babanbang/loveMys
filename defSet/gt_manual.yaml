@@ -1,8 +1,0 @@
-# 使用他人的api或者不想使用手动请关闭
-startApi: false
-# 你的域名或ip
-Host: http://127.0.0.1
-# 你的端口
-Port: 3000
-# 使用他人的api请修改
-verifyAddr: http://127.0.0.1:3000/GTest/register

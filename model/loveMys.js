@@ -2,23 +2,24 @@ import MysApi from './mys/mysApi.js'
 import Cfg from './Cfg.js'
 
 export default class LoveMys {
-  async getvali (mysapi, type, data = {}) {
-    let api = Cfg.getConfig('api')
-    if (!api.api || !(api.token || api.query)) {
-      return { data: null, message: '未正确填写配置文件', retcode: 1034 }
-    }
-
+  async getvali (e, mysapi, type, data = {}) {
     let res
     try {
       res = await mysapi.getData(type, data)
       if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
 
-      let option = {
-        ...mysapi.option,
-        devicefp: data?.headers?.['x-rpc-device_fp'] || ''
+      if (mysapi.option) {
+        mysapi.option = {
+          ...mysapi.option,
+          devicefp: data?.headers?.['x-rpc-device_fp'] || ''
+        }
+      } else {
+        mysapi.option = {
+          devicefp: data?.headers?.['x-rpc-device_fp'] || ''
+        }
       }
 
-      res = await this.geetest(mysapi.uid, mysapi.cookie, mysapi.isSr ? 'sr' : 'gs', option, mysapi.device)
+      res = await this.geetest(e, mysapi)
       if (!res?.data?.challenge) {
         return { data: null, message: '验证码失败', retcode: 1034 }
       }
@@ -40,17 +41,13 @@ export default class LoveMys {
     return res
   }
 
-  /**
-   * @param option 其他参数
-   * @param option.log 是否显示过码日志
-   * @param option.devicefp device_fp
-   */
-  async geetest (uid, cookie, game = 'gs', option = {}, device = '') {
+  async geetest (e, data) {
     let res
-    let vali = new MysApi(uid, cookie, game, option, device)
+    let { uid, cookie, game } = data
+    let vali = new MysApi(uid, cookie, game, data.option || {}, data.device || '')
 
     try {
-      let devicefp = option.devicefp || (await vali.getData('getFp')).data?.device_fp
+      let devicefp = data?.option?.devicefp || (await vali.getData('getFp')).data?.device_fp
       let headers = {
         'x-rpc-device_fp': devicefp
       }
@@ -63,7 +60,9 @@ export default class LoveMys {
       let gt = res?.data?.gt
       let challenge = res?.data?.challenge
 
-      res = await vali.getData('validate', res?.data)
+      let GtestType = Cfg.getConfig('api')
+      if ([2, 1].includes(GtestType)) res = await vali.getData('validate', res?.data)
+      if ([2, 0].includes(GtestType)) res = await this.Manual_geetest(e, res?.data)
 
       if (!res?.data?.validate) return { data: null, message: '验证码失败', retcode: 1034 }
 
@@ -86,8 +85,12 @@ export default class LoveMys {
    */
   async Manual_geetest (e, data) {
     if (!data.gt || !data.challenge || !e?.reply) return false
+    let apiCfg = Cfg.getConfig('api')
+    if (!apiCfg.verifyAddr || (!apiCfg.startApi && !(apiCfg.Host || apiCfg.Port))) {
+      return { data: null, message: '未正确填写配置文件[api.yaml]', retcode: 1034 }
+    }
 
-    let res = await fetch(`${Cfg.getConfig('gt_manual').verifyAddr}`, {
+    let res = await fetch(`${apiCfg.verifyAddr}`, {
       method: 'post',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(data)
