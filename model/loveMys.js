@@ -60,7 +60,7 @@ export default class LoveMys {
       let gt = res?.data?.gt
       let challenge = res?.data?.challenge
 
-      let GtestType = Cfg.getConfig('api')
+      let GtestType = Cfg.getConfig('api').GtestType
       if ([2, 1].includes(GtestType)) res = await vali.getData('validate', res?.data)
       if ([2, 0].includes(GtestType)) res = await this.Manual_geetest(e, res?.data)
 
