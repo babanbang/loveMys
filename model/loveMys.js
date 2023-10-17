@@ -1,4 +1,5 @@
 import MysApi from './mys/mysApi.js'
+import fetch from 'node-fetch'
 import Cfg from './Cfg.js'
 
 export default class LoveMys {

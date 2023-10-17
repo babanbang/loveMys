@@ -11,7 +11,7 @@ startApi: false
 Host: http://127.0.0.1
 # 你的手动端口
 Port: 3000
-# 使用他人的手动api请修改
+# 使用他人的手动api请修改(使用自己的api请保持端口一致)
 verifyAddr: http://127.0.0.1:3000/GTest/register
 
 # 0:仅手动；1:仅自动；2:自动失败换手动

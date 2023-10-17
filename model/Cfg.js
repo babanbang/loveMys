@@ -86,7 +86,7 @@ class Cfg {
 
   startGT () {
     let apiCfg = this.getConfig('api')
-    if (apiCfg.startApi && apiCfg.Host && apiCfg.Port) (new GT_Manual()).load()
+    if (apiCfg.startApi && apiCfg.Host && apiCfg.Port) new GT_Manual().load()
   }
 }
 
