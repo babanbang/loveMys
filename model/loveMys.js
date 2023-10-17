@@ -107,7 +107,7 @@ export default class LoveMys {
 
     for (let i = 0; i < 80; i++) {
       let validate = await (await fetch(res.data.result)).json()
-      if (validate?.data) return validate.data
+      if (validate?.data) return validate
 
       await new Promise((resolve) => setTimeout(resolve, 1500))
     }
