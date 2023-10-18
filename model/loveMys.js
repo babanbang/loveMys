@@ -68,9 +68,7 @@ export default class LoveMys {
       if (!res?.data?.validate) return { data: null, message: '验证码失败', retcode: 1034 }
 
       res = await vali.getData('verifyVerification', {
-        gt: res?.data?.gt || gt,
-        challenge: res?.data?.challenge || challenge,
-        validate: res?.data?.validate,
+        ...res.data,
         headers
       })
 
