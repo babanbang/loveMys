@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 import Cfg from './Cfg.js'
 
 export default class LoveMys {
-  async getvali(e, mysapi, type, data = {}) {
+  async getvali (e, mysapi, type, data = {}) {
     let res
     try {
       res = await mysapi.getData(type, data)
@@ -42,7 +42,7 @@ export default class LoveMys {
     return res
   }
 
-  async geetest(e, data) {
+  async geetest (e, data) {
     let res
     let { uid, cookie, game } = data
     let vali = new MysApi(uid, cookie, game, data.option || {}, data.device || '')
@@ -65,7 +65,7 @@ export default class LoveMys {
       if ([2, 1].includes(GtestType)) res = await vali.getData('validate', res?.data)
       if (!res?.data?.validate && [2, 0].includes(GtestType)) res = await this.Manual_geetest(e, res?.data)
 
-      if (!res?.data?.validate) return { data: null, message: '验证码失败', retcode: 1034 }
+      if (!res?.data?.validate && !res?.data?.geetest_validate) return { data: null, message: '验证码失败', retcode: 1034 }
 
       res = await vali.getData('verifyVerification', {
         ...res.data,
@@ -82,7 +82,7 @@ export default class LoveMys {
   /**
    * @param {{gt, challenge}} data
    */
-  async Manual_geetest(e, data) {
+  async Manual_geetest (e, data) {
     if (!data.gt || !data.challenge || !e?.reply) return false
     let apiCfg = Cfg.getConfig('api')
     if (!apiCfg.verifyAddr || (!apiCfg.startApi && !(apiCfg.Host || apiCfg.Port))) {
