@@ -5,7 +5,7 @@ import Cfg from '../model/Cfg.js'
 let loveMys = new LoveMys()
 
 export class loveMysHandler extends plugin {
-  constructor () {
+  constructor() {
     super({
       name: 'mys请求错误处理',
       priority: 1,
@@ -21,13 +21,13 @@ export class loveMysHandler extends plugin {
    * @param {{uid, cookie, game, option?: {log?, devicefp?}, device?}} args.mysApi
    * @param args.OnlyGtest 是否仅调用过码
    */
-  async mysReqErrHandler (e, args, reject) {
+  async mysReqErrHandler(e, args, reject) {
     let { mysApi, res } = args
 
     // 仅调用过码(供其他插件使用)
     if (args.OnlyGtest) return loveMys.geetest(e, mysApi)
 
-    if (res.retcode !== 1034) {
+    if (![1034, 5003].includes(Number(res.retcode))) {
       // 暂时只处理1034情况
       return reject()
     }
