@@ -25,10 +25,18 @@ export default class LoveMys {
         return { data: null, message: '验证码失败', retcode: 1034 }
       }
 
-      data.headers = {
-        ...data.headers,
-        'x-rpc-challenge': res?.data?.challenge,
-        'x-rpc-device_fp': res?.devicefp
+      if (data?.headers) {
+        data.headers = {
+          ...data.headers,
+          'x-rpc-challenge': res?.data?.challenge,
+          'x-rpc-device_fp': res?.devicefp
+        }
+      } else {
+        if (!data) data = {}
+        data.headers = {
+          'x-rpc-challenge': res?.data?.challenge,
+          'x-rpc-device_fp': res?.devicefp
+        }
       }
       res = await mysapi.getData(type, data)
 
