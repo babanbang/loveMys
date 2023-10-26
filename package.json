@@ -1,5 +1,5 @@
 {
-    "name": "loveMys",
+    "name": "loveMys-plugin",
     "author": "banban",
     "type": "module",
     "dependencies": {
