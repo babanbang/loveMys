@@ -3,24 +3,13 @@ import fetch from 'node-fetch'
 import Cfg from './Cfg.js'
 
 export default class LoveMys {
-  async getvali (e, mysapi, type, data = {}) {
+  async getvali (e, mysApi, type, data = {}) {
     let res
     try {
-      res = await mysapi.getData(type, data)
+      res = await mysApi.getData(type, data)
       if (res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002)) return res
 
-      if (mysapi.option) {
-        mysapi.option = {
-          ...mysapi.option,
-          devicefp: data?.headers?.['x-rpc-device_fp'] || ''
-        }
-      } else {
-        mysapi.option = {
-          devicefp: data?.headers?.['x-rpc-device_fp'] || ''
-        }
-      }
-
-      res = await this.geetest(e, mysapi)
+      res = await this.geetest(e, mysApi)
       if (!res?.data?.challenge) {
         return { data: null, message: '验证码失败', retcode: 1034 }
       }
@@ -29,16 +18,14 @@ export default class LoveMys {
         data.headers = {
           ...data.headers,
           'x-rpc-challenge': res?.data?.challenge,
-          'x-rpc-device_fp': res?.devicefp
         }
       } else {
         if (!data) data = {}
         data.headers = {
           'x-rpc-challenge': res?.data?.challenge,
-          'x-rpc-device_fp': res?.devicefp
         }
       }
-      res = await mysapi.getData(type, data)
+      res = await mysApi.getData(type, data)
 
       if (!(res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002))) {
         return { data: null, message: '验证码失败', retcode: 1034 }
@@ -53,10 +40,10 @@ export default class LoveMys {
   async geetest (e, data) {
     let res
     let { uid, cookie, game } = data
-    let vali = new MysApi(uid, cookie, game, data.option || {}, data.device || '')
+    let vali = new MysApi(uid, cookie, game, data.option || {}, data._device || '')
 
     try {
-      let devicefp = data?.option?.devicefp || (await vali.getData('getFp')).data?.device_fp
+      let devicefp = data._device_fp?.data?.device_fp || (await vali.getData('getFp')).data?.device_fp
       let headers = {
         'x-rpc-device_fp': devicefp
       }
@@ -71,16 +58,21 @@ export default class LoveMys {
 
       let GtestType = Cfg.getConfig('api').GtestType
       if ([2, 1].includes(GtestType)) res = await vali.getData('validate', res?.data)
-      if (!res?.data?.validate && [2, 0].includes(GtestType)) res = await this.Manual_geetest(e, res?.data)
+      if (!res?.data?.validate && [2, 0].includes(GtestType)) {
+        if (GtestType === 2) res = await vali.getData('createVerification', { headers })
+        res = await this.Manual_geetest(e, res?.data)
+      }
 
-      if (!res?.data?.validate && !res?.data?.geetest_validate) return { data: null, message: '验证码失败', retcode: 1034 }
+      if (!res?.data?.validate && !res?.data?.geetest_validate) {
+        return { data: null, message: '验证码失败', retcode: 1034 }
+      }
 
       res = await vali.getData('verifyVerification', {
         ...res.data,
         headers
       })
 
-      if (res?.data?.challenge) return { ...res, devicefp }
+      if (res?.data?.challenge) return res
     } catch (error) {
       logger.error(error)
     }
