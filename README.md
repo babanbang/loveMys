@@ -5,10 +5,12 @@
 * 使用Gitee
 ``` bash
 git clone https://gitee.com/bbaban/loveMys.git ./plugins/loveMys-plugin/
+pnpm install --filter=loveMys-plugin
 ```
 * 使用Github
 ``` bash
 git clone https://github.com/babanbang/loveMys.git ./plugins/loveMys-plugin/
+pnpm install --filter=loveMys-plugin
 ```
 > 注：根据你的网络情况选择不同的仓库地址，在国内使用Gitee相对稳定
 
@@ -17,5 +19,4 @@ git clone https://github.com/babanbang/loveMys.git ./plugins/loveMys-plugin/
 > 注：如何填写请自行查看所选择的api的接口文档 (当前仅支持GET)
 
 ## 后续计划
-* 添加手动方案
 
