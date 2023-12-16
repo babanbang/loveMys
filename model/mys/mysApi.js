@@ -36,7 +36,7 @@ export default class MysApi {
   }
 
   getUrl (type, data = {}) {
-    let urlMap = this.apiTool.getUrlMap({ ...data, deviceId: this.device_id })
+    let urlMap = this.apiTool.getUrlMap({ ...data, deviceId: this.device_id.toUpperCase() })
     if (!urlMap[type]) return false
 
     let { url, query = '', body = '', types = '' } = urlMap[type]
@@ -70,7 +70,14 @@ export default class MysApi {
   }
 
   async getData (type, data = {}, cached = false) {
-    if (type == 'getFp') data = { seed_id: this.getSeed_id(16) }
+    if (!this._device_fp && !data?.Getfp) {
+      this._device_fp = await this.getData('getFp', {
+        seed_id: this.getSeed_id(16),
+        Getfp: true
+      })
+    }
+    if (type === 'getFp' && !data?.Getfp) return this._device_fp
+
     let { url, headers, body, types } = this.getUrl(type, data)
 
     if (!url) return false
@@ -79,9 +86,15 @@ export default class MysApi {
     let cahce = await redis.get(cacheKey)
     if (cahce) return JSON.parse(cahce)
 
-    if (data.headers && types != 'noheader') {
-      headers = { ...headers, ...data.headers }
-      delete data.headers
+    if (types !== 'noheader'){
+      if (data.headers) {
+        headers = { ...headers, ...data.headers }
+        delete data.headers
+      }
+
+      if (type !== 'getFp' && !headers['x-rpc-device_fp']) {
+        headers['x-rpc-device_fp'] = this._device_fp.data?.device_fp
+      }
     }
 
     let param = {
@@ -118,10 +131,6 @@ export default class MysApi {
       return false
     }
 
-    if (res.retcode !== 0 && this.option.log) {
-      logger.debug(`[米游社接口][请求参数] ${url} ${JSON.stringify(param)}`)
-    }
-
     res.api = type
 
     if (cached) this.cache(res, cacheKey)
@@ -129,7 +138,9 @@ export default class MysApi {
     return res
   }
 
-  getHeaders (types, query = '', body = '') {
+  getHeaders (types = '', query = '', body = '') {
+    if (types === 'noheader') return {}
+
     const cn = {
       app_version: '2.40.1',
       User_Agent: `Mozilla/5.0 (Linux; Android 12; ${this.device}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.40.1`,
@@ -151,11 +162,6 @@ export default class MysApi {
       client = os
     } else {
       client = cn
-    }
-
-    switch (types) {
-      case 'noheader':
-        return {}
     }
 
     return {

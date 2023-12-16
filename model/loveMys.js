@@ -28,7 +28,7 @@ export default class LoveMys {
       res = await mysApi.getData(type, data)
 
       if (!(res?.retcode == 0 || (type == 'detail' && res?.retcode == -1002))) {
-        return { data: null, message: '验证码失败', retcode: 1034 }
+        return { data: null, message: '验证码失败', retcode: res.retcode || 1034 }
       }
     } catch (error) {
       logger.error(error)
@@ -43,18 +43,14 @@ export default class LoveMys {
     let vali = new MysApi(uid, cookie, game, data.option || {}, data._device || '')
 
     try {
-      let devicefp = data._device_fp?.data?.device_fp || (await vali.getData('getFp')).data?.device_fp
-      let headers = {
-        'x-rpc-device_fp': devicefp
-      }
+      vali._device_fp = data?._device_fp || await vali.getData('getFp')
+      let headers = {}
       if (game == 'sr') headers['x-rpc-challenge_game'] = '6'
 
       res = await vali.getData('createVerification', { headers })
       if (!res || res?.retcode !== 0) {
         return { data: null, message: '未知错误，可能为cookie失效', retcode: res?.retcode || 1034 }
       }
-      let gt = res?.data?.gt
-      let challenge = res?.data?.challenge
 
       let GtestType = Cfg.getConfig('api').GtestType
       if ([2, 1].includes(GtestType)) res = await vali.getData('validate', res?.data)
