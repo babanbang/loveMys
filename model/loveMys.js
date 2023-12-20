@@ -52,7 +52,7 @@ export default class LoveMys {
         return { data: null, message: '未知错误，可能为cookie失效', retcode: res?.retcode || 1034 }
       }
 
-      let GtestType = Cfg.getConfig('api').GtestType
+      let GtestType = Cfg.api.GtestType
       if ([2, 1].includes(GtestType)) res = await vali.getData('validate', res?.data)
       if (!res?.data?.validate && [2, 0].includes(GtestType)) {
         if (GtestType === 2) res = await vali.getData('createVerification', { headers })

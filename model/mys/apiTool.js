@@ -8,7 +8,6 @@ export default class apiTool {
    */
   constructor (server) {
     this.server = server
-    this.api = Cfg.getConfig('api')
   }
 
   getUrlMap = (data = {}) => {
@@ -33,8 +32,8 @@ export default class apiTool {
         }
       },
       validate: {
-        url: `${this.api.api}`,
-        query: `${this.api.token ? `token=${this.api.token}` : ''}${this.api.query || ''}&gt=${data.gt}&challenge=${data.challenge}`,
+        url: `${Cfg.api.api}`,
+        query: `${Cfg.api.token ? `token=${Cfg.api.token}` : ''}${Cfg.api.query || ''}&gt=${data.gt}&challenge=${data.challenge}`,
         types: 'noheader'
       },
       /** fp参数用于减少验证码 */

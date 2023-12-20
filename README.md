@@ -17,6 +17,7 @@ pnpm install --filter=loveMys-plugin
 ## 使用插件
 重启后在 config/api.yaml中填入api、token或query
 > 注：如何填写请自行查看所选择的api的接口文档 (当前仅支持GET)
+> 若需要Referer请填写 https://webstatic.mihoyo.com
 
 ## 后续计划
 

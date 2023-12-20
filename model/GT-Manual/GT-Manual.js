@@ -7,8 +7,8 @@ let isRegister = {}
 let result = {}
 const Path = `${process.cwd()}/plugins/loveMys-plugin/model/GT-Manual/`
 export default class GT_Manual {
-  constructor () {
-    this.cfg = Cfg.getConfig('api')
+  constructor() {
+    this.cfg = Cfg.api
     this.app = express()
   }
 

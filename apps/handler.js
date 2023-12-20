@@ -25,14 +25,14 @@ export class loveMysHandler extends plugin {
     let { mysApi, res } = args
 
     // 仅调用过码(供其他插件使用)
-    if (args.OnlyGtest) return loveMys.geetest(e, mysApi)
+    if (args.OnlyGtest) return await loveMys.geetest(e, mysApi)
 
     if (![1034, 5003].includes(Number(res.retcode))) {
       // 暂时只处理1034情况
       return reject()
     }
 
-    let apiCfg = Cfg.getConfig('api')
+    let apiCfg = Cfg.api
     if ([1, 2].includes(apiCfg.GtestType) && (!apiCfg.api || !(apiCfg.token || apiCfg.query))) {
       return reject('loveMys: 未正确填写配置文件[api.yaml]')
     }

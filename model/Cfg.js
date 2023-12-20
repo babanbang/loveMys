@@ -18,6 +18,8 @@ class Cfg {
     this.watcher = { config: {}, defSet: {} }
   }
 
+  get api(){ return this.getConfig('api') }
+  
   /** 默认配置 */
   getdefSet (app) {
     return this.getYaml(app, 'defSet')
