@@ -25,10 +25,10 @@ export class loveMysHandler extends plugin {
     let { mysApi, res } = args
 
     // 仅调用过码(供其他插件使用)
-    if (args.OnlyGtest) return await loveMys.geetest(e, mysApi)
+    if (args.OnlyGtest) return await loveMys.geetest(e, mysApi, res?.retcode)
 
-    if (![1034, 5003].includes(Number(res.retcode))) {
-      // 暂时只处理1034情况
+    if (![1034, 10035].includes(Number(res.retcode))) {
+      // 暂时只处理1034，10035情况
       return reject()
     }
 
